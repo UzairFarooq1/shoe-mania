@@ -9,7 +9,7 @@ export const productSchema = z.object({
         "archived",
     ]),
     price:z.number().min(1),
-    images:z.array(z.string().min(1,"At least one image is required")),
+    images:z.array(z.string()).min(1,"At least one image is required"),
     category:z.enum([
         "men",
         "women",

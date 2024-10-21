@@ -5,7 +5,7 @@ const nextConfig = {
       {
         protocol: "https",
         hostname: "utfs.io",
-        port: "3000",
+        port: "",
       },
     ],
   },
