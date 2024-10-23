@@ -5,6 +5,8 @@ import {parseWithZod} from '@conform-to/zod'
 import { bannerSchema, productSchema } from "./lib/zodSchema";
 import prisma from "./lib/db";
 import { revalidatePath } from "next/cache";
+import { redis } from "./lib/redis";
+import { Cart } from "./lib/interfaces";
 
 export async function createProduct(prevState: unknown, formData: FormData) {
     const {getUser} = getKindeServerSession();
@@ -247,4 +249,47 @@ export async function createBanner(prevState: any, formData: FormData) {
     revalidatePath("/bag");
   }
 
+  export async function checkOut() {
+    const { getUser } = getKindeServerSession();
+    const user = await getUser();
+  
+    if (!user) {
+      return redirect("/");
+    }
+  
+    let cart: Cart | null = await redis.get(`cart-${user.id}`);
+  
+    if (cart && cart.items) {
+      const lineItems: Stripe.Checkout.SessionCreateParams.LineItem[] =
+        cart.items.map((item) => ({
+          price_data: {
+            currency: "usd",
+            unit_amount: item.price * 100,
+            product_data: {
+              name: item.name,
+              images: [item.imageString],
+            },
+          },
+          quantity: item.quantity,
+        }));
+  
+      const session = await stripe.checkout.sessions.create({
+        mode: "payment",
+        line_items: lineItems,
+        success_url:
+          process.env.NODE_ENV === "development"
+            ? "http://localhost:3000/payment/success"
+            : "https://shoe-marshal.vercel.app/payment/success",
+        cancel_url:
+          process.env.NODE_ENV === "development"
+            ? "http://localhost:3000/payment/cancel"
+            : "https://shoe-marshal.vercel.app/payment/cancel",
+        metadata: {
+          userId: user.id,
+        },
+      });
+  
+      return redirect(session.url as string);
+    }
+  }
 
