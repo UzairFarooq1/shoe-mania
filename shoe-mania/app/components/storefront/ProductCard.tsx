@@ -21,6 +21,8 @@ interface iAppProps {
 }
 
 export function ProductCard({ item }: iAppProps) {
+  const hasMultipleImages = item.images.length > 1;
+
   return (
     <div className="rounded-lg">
       <Carousel className="w-full mx-auto">
@@ -38,8 +40,12 @@ export function ProductCard({ item }: iAppProps) {
             </CarouselItem>
           ))}
         </CarouselContent>
-        <CarouselPrevious className="ml-16" />
-        <CarouselNext className="mr-16" />
+        {hasMultipleImages && (
+          <>
+            <CarouselPrevious className="ml-16" />
+            <CarouselNext className="mr-16" />
+          </>
+        )}
       </Carousel>
 
       <div className="flex justify-between items-center mt-2">
