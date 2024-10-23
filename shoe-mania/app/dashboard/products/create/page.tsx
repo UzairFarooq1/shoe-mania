@@ -173,7 +173,7 @@ export default function ProductCreateRoute() {
                       <button
                         onClick={() => handleDelete(index)}
                         type="button"
-                        className="absolute -top-3 -right-3 p-2 rounded-lg text-white text-red-500"
+                        className="absolute -top-3 -right-3 p-2 rounded-lg text-red-500"
                       >
                         <XIcon className="w-3 h-3" />
                       </button>
